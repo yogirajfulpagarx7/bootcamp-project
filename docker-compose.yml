@@ -1,0 +1,46 @@
+version: '3.8'
+
+networks:
+  docker_ethos_net:
+    external: true
+
+services:
+  app:
+    build: .
+    ports:
+      - "1999:3001"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=password
+      - DB_DATABASE=bootcamp
+    depends_on:
+      - postgres
+    entrypoint: >
+      sh -c "
+      npm install &&
+      npm run start:dev
+      "
+    networks:
+      - docker_ethos_net
+
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: bootcamp
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - docker_ethos_net
+
+volumes:
+  postgres_data:
